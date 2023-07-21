@@ -8,44 +8,32 @@ import (
 
 type HighLevelCommands interface {
 	SelectByName(dfname []byte) (FileControlInformation, error)
-	ReadRecord(recordNumber, fileID int) (*RecordTemplate, error)
+	ReadRecord(recordNumber, fileID int) (RecordTemplate, error)
 	ReadAllRecords(fileID int) ([]RecordTemplate, error)
 	GetPSE(contactless bool) ([]RecordTemplate, error)
+	GetProcessingOptions(pdolData []byte) (EMVResponseMessageTemplateFormat2, error)
 }
 
 type _HighLevelClient struct {
 	Low LowLevelCommands
 }
 
-func (c _HighLevelClient) SelectByName(dfname []byte) (FileControlInformation, error) {
-	resp, err := c.Low.SelectByName(dfname)
-	if err != nil {
-		return FileControlInformation{}, err
-	}
-
-	var fci FileControlInformation
-	if err := tlv.UnmarshalBER(resp, &fci); err != nil {
-		return FileControlInformation{}, err
-	}
-	return fci, nil
+func (c _HighLevelClient) GetProcessingOptions(pdolData []byte) (EMVResponseMessageTemplateFormat2, error) {
+	return unmarshal[EMVResponseMessageTemplateFormat2](
+		c.Low.GetProcessingOptions(pdolData),
+	)
 }
 
-func (c _HighLevelClient) ReadRecord(recordNumber, fileID int) (*RecordTemplate, error) {
-	data, err := c.Low.ReadRecord(recordNumber, fileID)
-	if err != nil {
-		return nil, err
-	}
+func (c _HighLevelClient) SelectByName(dfname []byte) (FileControlInformation, error) {
+	return unmarshal[FileControlInformation](
+		c.Low.SelectByName(dfname),
+	)
+}
 
-	if len(data) == 0 {
-		return nil, ErrRecordNotFound
-	}
-
-	var record RecordTemplate
-	if err := tlv.UnmarshalBER(data, &record); err != nil {
-		return nil, err
-	}
-
-	return &record, nil
+func (c _HighLevelClient) ReadRecord(recordNumber, fileID int) (RecordTemplate, error) {
+	return unmarshal[RecordTemplate](
+		c.Low.ReadRecord(recordNumber, fileID),
+	)
 }
 
 func (c _HighLevelClient) ReadAllRecords(fileID int) ([]RecordTemplate, error) {
@@ -61,7 +49,7 @@ func (c _HighLevelClient) ReadAllRecords(fileID int) ([]RecordTemplate, error) {
 		}
 
 		recordNumber++
-		result = append(result, *record)
+		result = append(result, record)
 	}
 	return result, nil
 }
@@ -89,4 +77,18 @@ func (c _HighLevelClient) GetPSE(contactless bool) ([]RecordTemplate, error) {
 		return nil, err
 	}
 	return records, nil
+}
+
+func unmarshal[T any](data []byte, err error) (T, error) {
+	var result T
+	if err != nil {
+		return result, err
+	}
+
+	err = tlv.UnmarshalBER(data, &result)
+	if err != nil {
+		return result, err
+	}
+
+	return result, err
 }

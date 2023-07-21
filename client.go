@@ -2,7 +2,7 @@ package apdu
 
 type Client struct {
 	RawClient
-	LowLevel LowLevelCommands
+	LowLevelCommands LowLevelCommands
 	HighLevelCommands
 }
 
@@ -16,7 +16,7 @@ func NewClient(driver Driver) Client {
 	}
 	return Client{
 		RawClient:         raw,
-		LowLevel:          low,
+		LowLevelCommands:  low,
 		HighLevelCommands: high,
 	}
 }

@@ -6,21 +6,19 @@ import (
 	"github.com/mniak/krypton/encoding/tlv"
 )
 
-type HighLevelClient struct {
-	Commander
-	LowLevel LowLevelClient
+type HighLevelCommands interface {
+	SelectByName(dfname []byte) (FileControlInformation, error)
+	ReadRecord(recordNumber, fileID int) (*RecordTemplate, error)
+	ReadAllRecords(fileID int) ([]RecordTemplate, error)
+	GetPSE(contactless bool) ([]RecordTemplate, error)
 }
 
-func NewHighLevelClient(driver Driver) HighLevelClient {
-	lowLevelClient := NewLowLevelClient(driver)
-	return HighLevelClient{
-		Commander: lowLevelClient,
-		LowLevel:  lowLevelClient,
-	}
+type _HighLevelClient struct {
+	Low LowLevelCommands
 }
 
-func (c HighLevelClient) SelectByName(dfname []byte) (FileControlInformation, error) {
-	resp, err := c.LowLevel.SelectByName(dfname)
+func (c _HighLevelClient) SelectByName(dfname []byte) (FileControlInformation, error) {
+	resp, err := c.Low.SelectByName(dfname)
 	if err != nil {
 		return FileControlInformation{}, err
 	}
@@ -32,8 +30,8 @@ func (c HighLevelClient) SelectByName(dfname []byte) (FileControlInformation, er
 	return fci, nil
 }
 
-func (c HighLevelClient) ReadRecord(recordNumber, fileID int) (*RecordTemplate, error) {
-	data, err := c.LowLevel.ReadRecord(recordNumber, fileID)
+func (c _HighLevelClient) ReadRecord(recordNumber, fileID int) (*RecordTemplate, error) {
+	data, err := c.Low.ReadRecord(recordNumber, fileID)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +48,7 @@ func (c HighLevelClient) ReadRecord(recordNumber, fileID int) (*RecordTemplate, 
 	return &record, nil
 }
 
-func (c HighLevelClient) ReadAllRecords(fileID int) ([]RecordTemplate, error) {
+func (c _HighLevelClient) ReadAllRecords(fileID int) ([]RecordTemplate, error) {
 	var result []RecordTemplate
 	recordNumber := 1
 	for {
@@ -68,7 +66,7 @@ func (c HighLevelClient) ReadAllRecords(fileID int) ([]RecordTemplate, error) {
 	return result, nil
 }
 
-func (c HighLevelClient) GetPSE(contactless bool) ([]RecordTemplate, error) {
+func (c _HighLevelClient) GetPSE(contactless bool) ([]RecordTemplate, error) {
 	const PSE1 = "1PAY.SYS.DDF01"
 	const PSE2 = "2PAY.SYS.DDF01"
 

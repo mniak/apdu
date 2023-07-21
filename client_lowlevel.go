@@ -1,16 +1,16 @@
 package apdu
 
-type LowLevelClient struct {
-	Commander
+type LowLevelCommands interface {
+	SelectByName(dfname []byte) ([]byte, error)
+	ReadRecord(recordNumber int, fileID int) ([]byte, error)
+	GetProcessingOptions(pdolData []byte) ([]byte, error)
 }
 
-func NewLowLevelClient(driver Driver) LowLevelClient {
-	return LowLevelClient{
-		Commander: NewClient(driver),
-	}
+type _LowLevelClient struct {
+	RawClient
 }
 
-func (c LowLevelClient) SelectByName(dfname []byte) ([]byte, error) {
+func (c _LowLevelClient) SelectByName(dfname []byte) ([]byte, error) {
 	resp, err := c.SendCommand(Command{
 		Class:       0x00,
 		Instruction: InstructionA4_Select,
@@ -27,7 +27,7 @@ func (c LowLevelClient) SelectByName(dfname []byte) ([]byte, error) {
 	return resp.Data, resp.Trailer.GetError()
 }
 
-func (c LowLevelClient) ReadRecord(recordNumber int, fileID int) ([]byte, error) {
+func (c _LowLevelClient) ReadRecord(recordNumber int, fileID int) ([]byte, error) {
 	cmd := Command{
 		Class:       0x00,
 		Instruction: InstructionB2_ReadRecords,
@@ -52,7 +52,7 @@ func (c LowLevelClient) ReadRecord(recordNumber int, fileID int) ([]byte, error)
 	return resp.Data, resp.Trailer.GetError()
 }
 
-func (c LowLevelClient) GetProcessingOptions(pdolData []byte) ([]byte, error) {
+func (c _LowLevelClient) GetProcessingOptions(pdolData []byte) ([]byte, error) {
 	cmd := Command{
 		Class:       0x80,
 		Instruction: 0xA8,

@@ -1,12 +1,12 @@
 package apdu
 
 type LowLevelClient struct {
-	Client
+	Commander
 }
 
 func NewLowLevelClient(driver Driver) LowLevelClient {
 	return LowLevelClient{
-		Client: NewClient(driver),
+		Commander: NewClient(driver),
 	}
 }
 

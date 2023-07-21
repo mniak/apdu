@@ -7,15 +7,15 @@ import (
 )
 
 type HighLevelClient struct {
-	Client
+	Commander
 	LowLevel LowLevelClient
 }
 
 func NewHighLevelClient(driver Driver) HighLevelClient {
 	lowLevelClient := NewLowLevelClient(driver)
 	return HighLevelClient{
-		Client:   lowLevelClient,
-		LowLevel: lowLevelClient,
+		Commander: lowLevelClient,
+		LowLevel:  lowLevelClient,
 	}
 }
 

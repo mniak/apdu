@@ -8,25 +8,25 @@ import (
 	"github.com/mniak/krypton/encoding/tlv"
 )
 
-type Client interface {
+type Commander interface {
 	SendCommand(cmd Command) (Response, error)
 }
 
-type client struct {
+type _Commander struct {
 	driver        Driver
 	lengthEncoder tlv.LengthEncoder
 	logger        *log.Logger
 }
 
-func NewClient(driver Driver) Client {
-	return client{
+func NewClient(driver Driver) Commander {
+	return _Commander{
 		driver:        driver,
 		lengthEncoder: tlv.ShortLengthEncoder,
 		logger:        noop.Logger(),
 	}
 }
 
-func (c client) SendCommand(cmd Command) (Response, error) {
+func (c _Commander) SendCommand(cmd Command) (Response, error) {
 	bytes, err := cmd.Bytes(c.lengthEncoder)
 	if err != nil {
 		return Response{}, err

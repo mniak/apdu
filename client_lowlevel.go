@@ -2,7 +2,7 @@ package apdu
 
 type LowLevelCommands interface {
 	SelectByName(dfname []byte) ([]byte, error)
-	ReadRecord(fileID, recordNumber int) ([]byte, error)
+	ReadRecord(sfi, recordNumber int) ([]byte, error)
 	GetProcessingOptions(pdolData []byte) ([]byte, error)
 }
 
@@ -27,13 +27,13 @@ func (c _LowLevelClient) SelectByName(dfname []byte) ([]byte, error) {
 	return resp.Data, resp.Trailer.GetError()
 }
 
-func (c _LowLevelClient) ReadRecord(fileID, recordNumber int) ([]byte, error) {
+func (c _LowLevelClient) ReadRecord(sfi, recordNumber int) ([]byte, error) {
 	cmd := Command{
 		Class:       0x00,
 		Instruction: InstructionB2_ReadRecords,
 		Parameters: Parameters{
-			P1: byte(recordNumber),      // Record number
-			P2: byte(fileID<<3) | 0b100, // Short EF ID | P1 is the record number
+			P1: byte(recordNumber),   // Record number
+			P2: byte(sfi<<3) | 0b100, // Short EF ID | P1 is the record number
 		},
 		Data: nil,
 	}

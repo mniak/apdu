@@ -8,7 +8,7 @@ import (
 
 type HighLevelCommands interface {
 	SelectByName(dfname []byte) (FileControlInformation, error)
-	ReadRecord(recordNumber, fileID int) (RecordTemplate, error)
+	ReadRecord(fileID, recordNumber int) (RecordTemplate, error)
 	ReadAllRecords(fileID int) ([]RecordTemplate, error)
 	GetPSE(contactless bool) ([]RecordTemplate, error)
 	GetProcessingOptions(pdolData []byte) (EMVResponseMessageTemplateFormat2, error)
@@ -30,17 +30,21 @@ func (c _HighLevelClient) SelectByName(dfname []byte) (FileControlInformation, e
 	)
 }
 
-func (c _HighLevelClient) ReadRecord(recordNumber, fileID int) (RecordTemplate, error) {
+func (c _HighLevelClient) ReadRecord(fileID, recordNumber int) (RecordTemplate, error) {
 	return unmarshal[RecordTemplate](
-		c.Low.ReadRecord(recordNumber, fileID),
+		c.Low.ReadRecord(fileID, recordNumber),
 	)
 }
 
+// ReadAllRecords tries to read the records of a file starting from record 1. When a
+// status 6A83 (Record Not Found) is returned, it considers that the sequence ended
+// and returns the previous records returned. The parameter `fileID` here is the
+// `SFI` of the file.
 func (c _HighLevelClient) ReadAllRecords(fileID int) ([]RecordTemplate, error) {
 	var result []RecordTemplate
 	recordNumber := 1
 	for {
-		record, err := c.ReadRecord(recordNumber, fileID)
+		record, err := c.ReadRecord(fileID, recordNumber)
 		if errors.Is(err, ErrRecordNotFound) {
 			break
 		}

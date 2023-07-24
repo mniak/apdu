@@ -7,6 +7,7 @@ require (
 	github.com/ebfe/scard v0.0.0-20230420082256-7db3f9b7c8a7
 	github.com/mniak/krypton v0.0.0-20230721155408-50f12342b13f
 	github.com/pkg/errors v0.9.1
+	github.com/samber/lo v1.38.1
 	github.com/stretchr/testify v1.8.4
 )
 

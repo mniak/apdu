@@ -76,7 +76,7 @@ type EMVProprietaryTemplate struct {
 	ICCPublicKeyExponent       string  `tlv:"9f47,hex"`
 	DDOL                       string  `tlv:"9f49,hex"`
 	CVMList                    CVMList `tlv:"8e"`
-	CVMListHex                 string  `tlv:"8e,hex"`
+	CVMListBytes               []byte  `tlv:"8e"`
 
 	UnknownTag9F69 []byte  `tlv:"9f69"`
 	RawTLV         tlv.TLV `tlv:"raw"`
@@ -314,6 +314,7 @@ func (afl AFL) GoString() string {
 }
 
 type GenerateACResponse struct {
+	Raw     []byte `tlv:"raw"`
 	Format1 []byte `tlv:"80"`
 	Format2 struct {
 		CryptogramInformationData     string  `tlv:"9f27,hex"`

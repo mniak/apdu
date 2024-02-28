@@ -83,7 +83,7 @@ const (
 func (c _LowLevelClient) GenerateAC(cryptogramType ApplicationCryptogramType, transactionData []byte) ([]byte, error) {
 	cmd := Command{
 		Class:       0x80,
-		Instruction: EMVInstructionA8_GenerateAC,
+		Instruction: EMVInstructionAE_GenerateAC,
 		Parameters: Parameters{
 			P1: byte(cryptogramType << 6),
 			P2: 0x00,
@@ -110,7 +110,9 @@ func (c _LowLevelClient) VerifyPlaintextPIN(pinDigits []int) ([]byte, error) {
 	buf.WriteByte(byte(len(pinDigits))) // PIN length
 	for _, d := range pinDigits {
 		if d > 9 {
-			d = 9
+			return nil, errors.New("a digit cannot be greater than 9")
+		} else if d < 0 {
+			return nil, errors.New("a digit cannot be smaller than 0")
 		}
 		buf.WriteByte(byte(d))
 	}

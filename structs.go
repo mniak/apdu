@@ -187,7 +187,7 @@ func (cv CVRule) ConditionString(amount1, amount2 int) string {
 	case 0x02:
 		return "If not unattended cash and not manual cash and not purchase with cashback"
 	case 0x03:
-		return "If terminal supports the CVM 25"
+		return "If terminal supports the CVM"
 	case 0x04:
 		return "If manual cash"
 	case 0x05:

@@ -1,10 +1,18 @@
 package apdu
 
+import (
+	"bytes"
+	"errors"
+
+	"github.com/mniak/krypton"
+)
+
 type LowLevelCommands interface {
 	SelectByName(dfname []byte) ([]byte, error)
 	ReadRecord(sfi, recordNumber int) ([]byte, error)
 	GetProcessingOptions(pdolData []byte) ([]byte, error)
 	GenerateAC(cryptogramType ApplicationCryptogramType, transactionData []byte) ([]byte, error)
+	VerifyPlaintextPIN(pinDigits []int) ([]byte, error)
 }
 
 type _LowLevelClient struct {
@@ -81,6 +89,45 @@ func (c _LowLevelClient) GenerateAC(cryptogramType ApplicationCryptogramType, tr
 			P2: 0x00,
 		},
 		Data: transactionData,
+	}
+	resp, err := c.SendCommand(cmd)
+	if err != nil {
+		return nil, err
+	}
+	return resp.Data, resp.Trailer.GetError()
+}
+
+func (c _LowLevelClient) VerifyPlaintextPIN(pinDigits []int) ([]byte, error) {
+	if len(pinDigits) < 4 {
+		return nil, errors.New("the PIN is too short")
+	}
+	if len(pinDigits) > 12 {
+		return nil, errors.New("the PIN is too long")
+	}
+
+	var buf bytes.Buffer
+	buf.WriteByte(2)                    // Control field
+	buf.WriteByte(byte(len(pinDigits))) // PIN length
+	for _, d := range pinDigits {
+		if d > 9 {
+			d = 9
+		}
+		buf.WriteByte(byte(d))
+	}
+	for i := 0; i < 14-len(pinDigits); i++ {
+		buf.WriteByte(0xF)
+	}
+
+	block := krypton.NibblesToBytes(buf.Bytes())
+
+	cmd := Command{
+		Class:       0x00,
+		Instruction: Instruction20_Verify,
+		Parameters: Parameters{
+			P1: 0x00,
+			P2: 0x80, // Plaintext PIN, format as defined below
+		},
+		Data: block,
 	}
 	resp, err := c.SendCommand(cmd)
 	if err != nil {

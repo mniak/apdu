@@ -76,7 +76,7 @@ type EMVProprietaryTemplate struct {
 	ICCPublicKeyExponent       string  `tlv:"9f47,hex"`
 	DDOL                       string  `tlv:"9f49,hex"`
 	CVMList                    CVMList `tlv:"8e"`
-	CVMListHex                 string  `tlv:"8e,hex"`
+	CVMListBytes               []byte  `tlv:"8e"`
 
 	UnknownTag9F69 []byte  `tlv:"9f69"`
 	RawTLV         tlv.TLV `tlv:"raw"`
@@ -126,7 +126,8 @@ func (cv CVRule) FailIfUncessful() bool {
 }
 
 func (cv CVRule) Description() string {
-	switch cv.CVMCode {
+	mode := cv.CVMCode & 0b111111
+	switch mode {
 	case 0b000000:
 		return "Fail CVM processing"
 	case 0b000001:
@@ -165,13 +166,13 @@ func (cv CVRule) Description() string {
 		return "No CVM required"
 
 	}
-	if cv.CVMCode >= 0b100000 && cv.CVMCode <= 0b101111 {
+	if mode >= 0b100000 && mode <= 0b101111 {
 		return "Reserved for use by the individual payment systems"
 	}
-	if cv.CVMCode >= 0b110000 && cv.CVMCode <= 0b111110 {
+	if mode >= 0b110000 && mode <= 0b111110 {
 		return "Reserved for use by the issuer"
 	}
-	if cv.CVMCode >= 0b010000 && cv.CVMCode <= 0b011101 {
+	if mode >= 0b010000 && mode <= 0b011101 {
 		return "Reserved for use by this specification"
 	}
 	return "This value is not available for use"
@@ -314,12 +315,13 @@ func (afl AFL) GoString() string {
 }
 
 type GenerateACResponse struct {
+	Raw     []byte `tlv:"raw"`
 	Format1 []byte `tlv:"80"`
 	Format2 struct {
 		CryptogramInformationData     string  `tlv:"9f27,hex"`
 		ApplicationTransactionCounter string  `tlv:"9f36,hex"`
 		ApplicationCryptogram         string  `tlv:"9f26,hex"`
-		IssuerApplicationData         string  `tlv:"9f10,hex"`
+		IssuerApplicationData         []byte  `tlv:"9f10,hex"`
 		SignedDynamicApplicationData  string  `tlv:"9f4b,hex"`
 		Raw                           tlv.TLV `tlv:"raw"`
 	} `tlv:"77"`

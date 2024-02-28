@@ -56,7 +56,7 @@ func TestEMVProprietaryTemplate_Merge(t *testing.T) {
 				emptyValue:  func() any { return "" },
 				randomValue: func() any { return gofakeit.SentenceSimple() },
 				get:         func(et *EMVProprietaryTemplate) any { return et.Track2EquivalentData },
-				set:         func(et *EMVProprietaryTemplate, val any) { et.Track2EquivalentData = val.(string) },
+				set:         func(et *EMVProprietaryTemplate, val any) { et.Track2EquivalentData = val.([]byte) },
 			},
 			{
 				field:       "CardholderName",
@@ -206,11 +206,11 @@ func TestEMVProprietaryTemplate_Merge(t *testing.T) {
 				set:         func(et *EMVProprietaryTemplate, val any) { et.DDOL = val.(string) },
 			},
 			{
-				field:       "CVMList",
+				field:       "CVMListBytes",
 				emptyValue:  func() any { return "" },
 				randomValue: func() any { return gofakeit.SentenceSimple() },
-				get:         func(et *EMVProprietaryTemplate) any { return et.CVMList },
-				set:         func(et *EMVProprietaryTemplate, val any) { et.CVMList = val.(string) },
+				get:         func(et *EMVProprietaryTemplate) any { return et.CVMListBytes },
+				set:         func(et *EMVProprietaryTemplate, val any) { et.CVMListBytes = val.([]byte) },
 			},
 		}
 		for _, tc := range testCases {

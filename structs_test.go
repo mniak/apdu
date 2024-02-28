@@ -53,8 +53,8 @@ func TestEMVProprietaryTemplate_Merge(t *testing.T) {
 		}{
 			{
 				field:       "Track2EquivalentData",
-				emptyValue:  func() any { return "" },
-				randomValue: func() any { return gofakeit.SentenceSimple() },
+				emptyValue:  func() any { return make([]byte, 0) },
+				randomValue: func() any { return []byte(gofakeit.SentenceSimple()) },
 				get:         func(et *EMVProprietaryTemplate) any { return et.Track2EquivalentData },
 				set:         func(et *EMVProprietaryTemplate, val any) { et.Track2EquivalentData = val.([]byte) },
 			},
@@ -228,8 +228,6 @@ func TestEMVProprietaryTemplate_Merge(t *testing.T) {
 					mergedFieldValue := tc.get(&merged)
 					assert.Equal(t, fakeValue, mergedFieldValue)
 				})
-			})
-			t.Run(tc.field, func(t *testing.T) {
 				t.Run("When value of A is empty and value is set to field of B", func(t *testing.T) {
 					var a EMVProprietaryTemplate
 					gofakeit.Struct(&a)

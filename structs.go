@@ -52,6 +52,7 @@ type RecordTemplate struct {
 type EMVProprietaryTemplate struct {
 	ApplicationTemplates []ApplicationTemplate `tlv:"61"`
 
+	Track1DiscretionaryData    string  `tlv:"9f1f"`
 	Track2EquivalentData       []byte  `tlv:"57"`
 	CardholderName             string  `tlv:"5f20"`
 	PAN                        string  `tlv:"5a,hex"`
@@ -60,6 +61,7 @@ type EMVProprietaryTemplate struct {
 	UsageControl               string  `tlv:"9f07,hex"`
 	IssuerCountryCode          string  `tlv:"5f28,hex"`
 	EffectiveDate              string  `tlv:"5f25,hex"`
+	ServiceCode                string  `tlv:"5f30,hex"`
 	IssuerActionCodeDenial     string  `tlv:"9f0e,hex"`
 	IssuerActionCodeOnline     string  `tlv:"9f0f,hex"`
 	IssuerActionCodeDefault    string  `tlv:"9f0d,hex"`

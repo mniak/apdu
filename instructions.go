@@ -60,5 +60,5 @@ const (
 // EMV instructions
 const (
 	EMVInstructionA8_GetProcessingOptions Instruction = 0xA8
-	EMVInstructionA8_GenerateAC           Instruction = 0xAE
+	EMVInstructionAE_GenerateAC           Instruction = 0xAE
 )

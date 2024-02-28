@@ -164,18 +164,41 @@ func TestEMVProprietaryTemplate_Merge(t *testing.T) {
 				set:         func(et *EMVProprietaryTemplate, val any) { et.CurrencyExponent = val.(string) },
 			},
 			{
-				field:       "CDOL1",
-				emptyValue:  func() any { return make([]byte, 0) },
-				randomValue: func() any { return []byte(gofakeit.SentenceSimple()) },
-				get:         func(et *EMVProprietaryTemplate) any { return et.CDOL1 },
-				set:         func(et *EMVProprietaryTemplate, val any) { et.CDOL1 = val.(tlv.TL) },
-			},
-			{
-				field:       "CDOL2",
+				field:       "CDOL1 Hex",
 				emptyValue:  func() any { return "" },
 				randomValue: func() any { return gofakeit.SentenceSimple() },
-				get:         func(et *EMVProprietaryTemplate) any { return et.CDOL2 },
-				set:         func(et *EMVProprietaryTemplate, val any) { et.CDOL2 = val.(tlv.TL) },
+				get:         func(et *EMVProprietaryTemplate) any { return et.CDOL1Hex },
+				set:         func(et *EMVProprietaryTemplate, val any) { et.CDOL1Hex = val.(string) },
+			},
+			{
+				field:      "CDOL1",
+				emptyValue: func() any { return tlv.TL{} },
+				randomValue: func() any {
+					return tlv.TL{{
+						tlv.Tag(gofakeit.Uint8()),
+						int(gofakeit.Uint8()),
+					}, {
+						tlv.Tag(gofakeit.Uint8()),
+						int(gofakeit.Uint8()),
+					}}
+				},
+				get: func(et *EMVProprietaryTemplate) any { return et.CDOL1 },
+				set: func(et *EMVProprietaryTemplate, val any) { et.CDOL1 = val.(tlv.TL) },
+			},
+			{
+				field:      "CDOL2",
+				emptyValue: func() any { return tlv.TL{} },
+				randomValue: func() any {
+					return tlv.TL{{
+						tlv.Tag(gofakeit.Uint8()),
+						int(gofakeit.Uint8()),
+					}, {
+						tlv.Tag(gofakeit.Uint8()),
+						int(gofakeit.Uint8()),
+					}}
+				},
+				get: func(et *EMVProprietaryTemplate) any { return et.CDOL2 },
+				set: func(et *EMVProprietaryTemplate, val any) { et.CDOL2 = val.(tlv.TL) },
 			},
 			{
 				field:       "VersionNumber1",
@@ -207,8 +230,8 @@ func TestEMVProprietaryTemplate_Merge(t *testing.T) {
 			},
 			{
 				field:       "CVMListBytes",
-				emptyValue:  func() any { return "" },
-				randomValue: func() any { return gofakeit.SentenceSimple() },
+				emptyValue:  func() any { return make([]byte, 0) },
+				randomValue: func() any { return []byte(gofakeit.SentenceSimple()) },
 				get:         func(et *EMVProprietaryTemplate) any { return et.CVMListBytes },
 				set:         func(et *EMVProprietaryTemplate, val any) { et.CVMListBytes = val.([]byte) },
 			},

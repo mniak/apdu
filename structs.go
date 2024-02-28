@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/mniak/krypton/encoding/tlv"
-	"github.com/samber/lo"
+	"github.com/mniak/apdu/internal/utils"
+	"github.com/mniak/tlv"
 )
 
 type PSEFile struct {
@@ -214,31 +214,33 @@ func (et EMVProprietaryTemplate) Merge(other EMVProprietaryTemplate) EMVPropriet
 	if len(et.Track2EquivalentData) == 0 {
 		et.Track2EquivalentData = other.Track2EquivalentData
 	}
-	et.CardholderName, _ = lo.Coalesce(et.CardholderName, other.CardholderName)
-	et.PAN, _ = lo.Coalesce(et.PAN, other.PAN)
-	et.PANSequenceNumber, _ = lo.Coalesce(et.PANSequenceNumber, other.PANSequenceNumber)
-	et.ExpirationDate, _ = lo.Coalesce(et.ExpirationDate, other.ExpirationDate)
-	et.UsageControl, _ = lo.Coalesce(et.UsageControl, other.UsageControl)
-	et.IssuerCountryCode, _ = lo.Coalesce(et.IssuerCountryCode, other.IssuerCountryCode)
-	et.EffectiveDate, _ = lo.Coalesce(et.EffectiveDate, other.EffectiveDate)
-	et.IssuerActionCodeDenial, _ = lo.Coalesce(et.IssuerActionCodeDenial, other.IssuerActionCodeDenial)
-	et.IssuerActionCodeOnline, _ = lo.Coalesce(et.IssuerActionCodeOnline, other.IssuerActionCodeOnline)
-	et.IssuerActionCodeDefault, _ = lo.Coalesce(et.IssuerActionCodeDefault, other.IssuerActionCodeDefault)
-	et.CAPublicKeyIndex1, _ = lo.Coalesce(et.CAPublicKeyIndex1, other.CAPublicKeyIndex1)
-	et.IssuerPublicKeyExponent, _ = lo.Coalesce(et.IssuerPublicKeyExponent, other.IssuerPublicKeyExponent)
-	et.IssuerPublicKeyCertificate, _ = lo.Coalesce(et.IssuerPublicKeyCertificate, other.IssuerPublicKeyCertificate)
-	et.CurrencyCode, _ = lo.Coalesce(et.CurrencyCode, other.CurrencyCode)
-	et.CurrencyExponent, _ = lo.Coalesce(et.CurrencyExponent, other.CurrencyExponent)
+	et.CardholderName = utils.CoalesceString(et.CardholderName, other.CardholderName)
+	et.PAN = utils.CoalesceString(et.PAN, other.PAN)
+	et.PANSequenceNumber = utils.CoalesceString(et.PANSequenceNumber, other.PANSequenceNumber)
+	et.ExpirationDate = utils.CoalesceString(et.ExpirationDate, other.ExpirationDate)
+	et.UsageControl = utils.CoalesceString(et.UsageControl, other.UsageControl)
+	et.IssuerCountryCode = utils.CoalesceString(et.IssuerCountryCode, other.IssuerCountryCode)
+	et.EffectiveDate = utils.CoalesceString(et.EffectiveDate, other.EffectiveDate)
+	et.IssuerActionCodeDenial = utils.CoalesceString(et.IssuerActionCodeDenial, other.IssuerActionCodeDenial)
+	et.IssuerActionCodeOnline = utils.CoalesceString(et.IssuerActionCodeOnline, other.IssuerActionCodeOnline)
+	et.IssuerActionCodeDefault = utils.CoalesceString(et.IssuerActionCodeDefault, other.IssuerActionCodeDefault)
+	et.CAPublicKeyIndex1 = utils.CoalesceString(et.CAPublicKeyIndex1, other.CAPublicKeyIndex1)
+	et.IssuerPublicKeyExponent = utils.CoalesceString(et.IssuerPublicKeyExponent, other.IssuerPublicKeyExponent)
+	et.IssuerPublicKeyCertificate = utils.CoalesceString(et.IssuerPublicKeyCertificate, other.IssuerPublicKeyCertificate)
+	et.CurrencyCode = utils.CoalesceString(et.CurrencyCode, other.CurrencyCode)
+	et.CurrencyExponent = utils.CoalesceString(et.CurrencyExponent, other.CurrencyExponent)
+	et.CDOL1Hex = utils.CoalesceString(et.CDOL1Hex, other.CDOL1Hex)
 	if len(et.CDOL1) == 0 {
 		et.CDOL1 = other.CDOL1
 	}
 	if len(et.CDOL2) == 0 {
 		et.CDOL2 = other.CDOL2
 	}
-	et.VersionNumber1, _ = lo.Coalesce(et.VersionNumber1, other.VersionNumber1)
-	et.ICCPublicKeyCertificate, _ = lo.Coalesce(et.ICCPublicKeyCertificate, other.ICCPublicKeyCertificate)
-	et.ICCPublicKeyExponent, _ = lo.Coalesce(et.ICCPublicKeyExponent, other.ICCPublicKeyExponent)
-	et.DDOL, _ = lo.Coalesce(et.DDOL, other.DDOL)
+	et.VersionNumber1 = utils.CoalesceString(et.VersionNumber1, other.VersionNumber1)
+	et.ICCPublicKeyCertificate = utils.CoalesceString(et.ICCPublicKeyCertificate, other.ICCPublicKeyCertificate)
+	et.ICCPublicKeyExponent = utils.CoalesceString(et.ICCPublicKeyExponent, other.ICCPublicKeyExponent)
+	et.DDOL = utils.CoalesceString(et.DDOL, other.DDOL)
+	et.CVMListBytes = utils.CoalesceBytes(et.CVMListBytes, other.CVMListBytes)
 	if len(et.CVMList.CVRules) == 0 {
 		et.CVMList = other.CVMList
 	}

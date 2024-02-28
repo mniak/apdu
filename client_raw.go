@@ -9,6 +9,8 @@ import (
 	"github.com/mniak/krypton/encoding/tlv"
 )
 
+//go:generate mockgen -package=apdu -destination=client_raw_mock.go -source=client_raw.go
+
 type RawClient interface {
 	SendCommand(cmd Command) (Response, error)
 }
@@ -99,6 +101,9 @@ func (c _RawClient) internalSendCommand(cmd Command) (Response, error) {
 
 func (c _RawClient) SendCommand(cmd Command) (Response, error) {
 	cmdbytes, err := cmd.Bytes(c.lengthEncoder)
+	if err != nil {
+		return Response{}, err
+	}
 	c.logger.Printf("APDU sent: %2X\n%s\n", cmdbytes, utils.IndentString(cmd.StringPretty(), "  "))
 
 	resp, err := c.internalSendCommand(cmd)

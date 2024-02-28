@@ -29,15 +29,9 @@ func (r Response) String() string {
 }
 
 func (r Response) HasMoreData() bool {
-	if r.Trailer.SW1() == 0x61 {
-		return true
-	}
-	return false
+	return r.Trailer.SW1() == 0x61
 }
 
 func (r Response) HasWrongLength() bool {
-	if r.Trailer.SW1() == 0x6C {
-		return true
-	}
-	return false
+	return r.Trailer.SW1() == 0x6C
 }

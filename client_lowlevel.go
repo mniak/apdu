@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"errors"
 
-	"github.com/mniak/krypton"
+	"github.com/mniak/apdu/internal/utils"
 )
 
 type LowLevelCommands interface {
@@ -120,7 +120,7 @@ func (c _LowLevelClient) VerifyPlaintextPIN(pinDigits []int) ([]byte, error) {
 		buf.WriteByte(0xF)
 	}
 
-	block := krypton.NibblesToBytes(buf.Bytes())
+	block := utils.NibblesToBytes(buf.Bytes())
 
 	cmd := Command{
 		Class:       0x00,

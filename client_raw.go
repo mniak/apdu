@@ -6,7 +6,7 @@ import (
 
 	"github.com/mniak/apdu/internal/noop"
 	"github.com/mniak/apdu/internal/utils"
-	"github.com/mniak/krypton/encoding/tlv"
+	"github.com/mniak/tlv"
 )
 
 //go:generate mockgen -package=apdu -destination=client_raw_mock.go -source=client_raw.go

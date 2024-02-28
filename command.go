@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/mniak/krypton/encoding/tlv"
+	"github.com/mniak/tlv"
 	"github.com/pkg/errors"
 )
 

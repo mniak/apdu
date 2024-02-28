@@ -3,7 +3,7 @@ package apdu
 import (
 	"errors"
 
-	"github.com/mniak/krypton/encoding/tlv"
+	"github.com/mniak/tlv"
 )
 
 type HighLevelCommands interface {

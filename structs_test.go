@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/brianvoe/gofakeit/v6"
-	"github.com/mniak/krypton/encoding/tlv"
+	"github.com/mniak/tlv"
 	"github.com/stretchr/testify/assert"
 )
 

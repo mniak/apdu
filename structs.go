@@ -258,14 +258,37 @@ type ApplicationTemplate struct {
 	// RawData tlv.TLV `tlv:"raw"`
 }
 
-type EMVResponseMessageTemplateFormat2 struct {
-	ProcessingOptions *ProcessingOptions `tlv:"77"`
+type GetProcessingOptionsResponse struct {
+	Format1 []byte                               `tlv:"80"`
+	Format2 *GetProcessingOptionsResponseFormat2 `tlv:"77"`
 }
 
-type ProcessingOptions struct {
-	InterchangeProfile []byte `tlv:"82"`
-	FileLocator        AFL    `tlv:"94"`
+func (resp GetProcessingOptionsResponse) InterchangeProfile() AIP {
+	if len(resp.Format1) >= 2 {
+		return resp.Format1[:2]
+	}
+	if resp.Format2 != nil {
+		return resp.Format2.InterchangeProfile
+	}
+	return nil
 }
+
+func (resp GetProcessingOptionsResponse) FileLocator() AFL {
+	if len(resp.Format1) >= 2 {
+		return resp.Format1[2:]
+	}
+	if resp.Format2 != nil {
+		return resp.Format2.FileLocator
+	}
+	return nil
+}
+
+type GetProcessingOptionsResponseFormat2 struct {
+	InterchangeProfile AIP `tlv:"82"`
+	FileLocator        AFL `tlv:"94"`
+}
+
+type AIP []byte
 
 type AFL []byte
 

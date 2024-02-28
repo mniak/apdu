@@ -15,7 +15,7 @@ type HighLevelCommands interface {
 	// and returns the previous records returned.
 	ReadAllRecords(sfi int) ([]RecordTemplate, error)
 	GetPSE(contactless bool) ([]RecordTemplate, error)
-	GetProcessingOptions(pdolData []byte) (EMVResponseMessageTemplateFormat2, error)
+	GetProcessingOptions(pdolData []byte) (GetProcessingOptionsResponse, error)
 	GenerateARQC(cdolData []byte) (GenerateACResponse, error)
 }
 
@@ -23,8 +23,8 @@ type _HighLevelClient struct {
 	Low LowLevelCommands
 }
 
-func (c _HighLevelClient) GetProcessingOptions(pdolData []byte) (EMVResponseMessageTemplateFormat2, error) {
-	return unmarshal[EMVResponseMessageTemplateFormat2](
+func (c _HighLevelClient) GetProcessingOptions(pdolData []byte) (GetProcessingOptionsResponse, error) {
+	return unmarshal[GetProcessingOptionsResponse](
 		c.Low.GetProcessingOptions(pdolData),
 	)
 }

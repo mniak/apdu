@@ -342,8 +342,7 @@ func (afl AFL) GoString() string {
 }
 
 type GenerateACResponse struct {
-	Raw     []byte `tlv:"raw"`
-	Format1 []byte `tlv:"80"`
+	Format1 GenerateACResponseFormat1 `tlv:"80"`
 	Format2 struct {
 		CryptogramInformationData     string  `tlv:"9f27,hex"`
 		ApplicationTransactionCounter string  `tlv:"9f36,hex"`
@@ -352,5 +351,66 @@ type GenerateACResponse struct {
 		SignedDynamicApplicationData  string  `tlv:"9f4b,hex"`
 		Raw                           tlv.TLV `tlv:"raw"`
 	} `tlv:"77"`
-	Format2Raw string `tlv:"77"`
+	Raw tlv.TLV `tlv:"raw"`
+}
+
+func (resp GenerateACResponse) CryptogramInformationData() string {
+	if len(resp.Format2.CryptogramInformationData) > 0 {
+		return resp.Format2.CryptogramInformationData
+	}
+	return resp.Format1.CryptogramInformationData()
+}
+
+func (resp GenerateACResponse) ApplicationTransactionCounter() string {
+	if len(resp.Format2.ApplicationTransactionCounter) > 0 {
+		return resp.Format2.ApplicationTransactionCounter
+	}
+	return resp.Format1.ApplicationTransactionCounter()
+}
+
+func (resp GenerateACResponse) ApplicationCryptogram() string {
+	if len(resp.Format2.ApplicationCryptogram) > 0 {
+		return resp.Format2.ApplicationCryptogram
+	}
+	return resp.Format1.ApplicationCryptogram()
+}
+
+func (resp GenerateACResponse) IssuerApplicationData() []byte {
+	if len(resp.Format2.IssuerApplicationData) > 0 {
+		return resp.Format2.IssuerApplicationData
+	}
+	return resp.Format1.IssuerApplicationData()
+}
+
+type GenerateACResponseFormat1 []byte
+
+func (f1 GenerateACResponseFormat1) CryptogramInformationData() string {
+	if len(f1) < 1 {
+		return ""
+	}
+	return fmt.Sprintf("%02X", f1[0])
+}
+
+func (f1 GenerateACResponseFormat1) ApplicationTransactionCounter() string {
+	const offset = 1
+	if len(f1) < offset+2 {
+		return ""
+	}
+	return fmt.Sprintf("%02X", f1[offset:offset+2])
+}
+
+func (f1 GenerateACResponseFormat1) ApplicationCryptogram() string {
+	const offset = 3
+	if len(f1) < offset+8 {
+		return ""
+	}
+	return fmt.Sprintf("%02X", f1[offset:offset+8])
+}
+
+func (f1 GenerateACResponseFormat1) IssuerApplicationData() []byte {
+	const offset = 11
+	if len(f1) < offset+1 {
+		return nil
+	}
+	return f1[offset:]
 }

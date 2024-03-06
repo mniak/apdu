@@ -73,6 +73,7 @@ type EMVProprietaryTemplate struct {
 	CDOL1                      tlv.TL  `tlv:"8c"`
 	CDOL1Hex                   string  `tlv:"8c,hex"`
 	CDOL2                      tlv.TL  `tlv:"8d,hex"`
+	CDOL2Hex                   string  `tlv:"8d,hex"`
 	VersionNumber1             string  `tlv:"9f08,hex"`
 	ICCPublicKeyCertificate    string  `tlv:"9f46,hex"`
 	ICCPublicKeyExponent       string  `tlv:"9f47,hex"`
@@ -344,28 +345,28 @@ func (afl AFL) GoString() string {
 type GenerateACResponse struct {
 	Format1 GenerateACResponseFormat1 `tlv:"80"`
 	Format2 struct {
-		CryptogramInformationData     string  `tlv:"9f27,hex"`
-		ApplicationTransactionCounter string  `tlv:"9f36,hex"`
-		ApplicationCryptogram         string  `tlv:"9f26,hex"`
-		IssuerApplicationData         []byte  `tlv:"9f10,hex"`
-		SignedDynamicApplicationData  string  `tlv:"9f4b,hex"`
-		Raw                           tlv.TLV `tlv:"raw"`
+		CryptogramInformationData     CryptogramInformationData `tlv:"9f27"`
+		ApplicationTransactionCounter string                    `tlv:"9f36,hex"`
+		ApplicationCryptogram         string                    `tlv:"9f26,hex"`
+		IssuerApplicationData         []byte                    `tlv:"9f10,hex"`
+		SignedDynamicApplicationData  string                    `tlv:"9f4b,hex"`
+		Raw                           tlv.TLV                   `tlv:"raw"`
 	} `tlv:"77"`
 	Raw tlv.TLV `tlv:"raw"`
 }
 
-func (resp GenerateACResponse) CryptogramInformationData() string {
-	if len(resp.Format2.CryptogramInformationData) > 0 {
-		return resp.Format2.CryptogramInformationData
+func (resp GenerateACResponse) CryptogramInformationData() CryptogramInformationData {
+	if len(resp.Format1) > 0 {
+		return resp.Format1.CryptogramInformationData()
 	}
-	return resp.Format1.CryptogramInformationData()
+	return resp.Format2.CryptogramInformationData
 }
 
 func (resp GenerateACResponse) ApplicationTransactionCounter() string {
-	if len(resp.Format2.ApplicationTransactionCounter) > 0 {
-		return resp.Format2.ApplicationTransactionCounter
+	if len(resp.Format1) > 0 {
+		return resp.Format1.ApplicationTransactionCounter()
 	}
-	return resp.Format1.ApplicationTransactionCounter()
+	return resp.Format2.ApplicationTransactionCounter
 }
 
 func (resp GenerateACResponse) ApplicationCryptogram() string {
@@ -384,11 +385,11 @@ func (resp GenerateACResponse) IssuerApplicationData() []byte {
 
 type GenerateACResponseFormat1 []byte
 
-func (f1 GenerateACResponseFormat1) CryptogramInformationData() string {
+func (f1 GenerateACResponseFormat1) CryptogramInformationData() CryptogramInformationData {
 	if len(f1) < 1 {
-		return ""
+		return 0
 	}
-	return fmt.Sprintf("%02X", f1[0])
+	return CryptogramInformationData(f1[0])
 }
 
 func (f1 GenerateACResponseFormat1) ApplicationTransactionCounter() string {
@@ -413,4 +414,26 @@ func (f1 GenerateACResponseFormat1) IssuerApplicationData() []byte {
 		return nil
 	}
 	return f1[offset:]
+}
+
+type CryptogramInformationData byte
+
+func (cid CryptogramInformationData) AAC() bool {
+	return cid>>6 == 0b00
+}
+
+func (cid CryptogramInformationData) TC() bool {
+	return cid>>6 == 0b01
+}
+
+func (cid CryptogramInformationData) ARQC() bool {
+	return cid>>6 == 0b10
+}
+
+func (cid CryptogramInformationData) RFU() bool {
+	return cid>>6 == 0b11
+}
+
+func (cid CryptogramInformationData) String() string {
+	return fmt.Sprintf("%02X", byte(cid))
 }

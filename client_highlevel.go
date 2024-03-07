@@ -17,6 +17,7 @@ type HighLevelCommands interface {
 	GetPSE(contactless bool) ([]RecordTemplate, error)
 	GetProcessingOptions(pdolData []byte) (GetProcessingOptionsResponse, error)
 	GenerateARQC(cdolData []byte) (GenerateACResponse, error)
+	GenerateTC(transactionData []byte) (GenerateACResponse, error)
 }
 
 type _HighLevelClient struct {
@@ -87,6 +88,12 @@ func (c _HighLevelClient) GetPSE(contactless bool) ([]RecordTemplate, error) {
 func (c _HighLevelClient) GenerateARQC(transactionData []byte) (GenerateACResponse, error) {
 	return unmarshal[GenerateACResponse](
 		c.Low.GenerateAC(ARQC, transactionData),
+	)
+}
+
+func (c _HighLevelClient) GenerateTC(transactionData []byte) (GenerateACResponse, error) {
+	return unmarshal[GenerateACResponse](
+		c.Low.GenerateAC(TC, transactionData),
 	)
 }
 

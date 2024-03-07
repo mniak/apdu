@@ -52,6 +52,7 @@ type RecordTemplate struct {
 type EMVProprietaryTemplate struct {
 	ApplicationTemplates []ApplicationTemplate `tlv:"61"`
 
+	Track1DiscretionaryData    string  `tlv:"9f1f"`
 	Track2EquivalentData       []byte  `tlv:"57"`
 	CardholderName             string  `tlv:"5f20"`
 	PAN                        string  `tlv:"5a,hex"`
@@ -60,6 +61,7 @@ type EMVProprietaryTemplate struct {
 	UsageControl               string  `tlv:"9f07,hex"`
 	IssuerCountryCode          string  `tlv:"5f28,hex"`
 	EffectiveDate              string  `tlv:"5f25,hex"`
+	ServiceCode                string  `tlv:"5f30,hex"`
 	IssuerActionCodeDenial     string  `tlv:"9f0e,hex"`
 	IssuerActionCodeOnline     string  `tlv:"9f0f,hex"`
 	IssuerActionCodeDefault    string  `tlv:"9f0d,hex"`
@@ -71,6 +73,7 @@ type EMVProprietaryTemplate struct {
 	CDOL1                      tlv.TL  `tlv:"8c"`
 	CDOL1Hex                   string  `tlv:"8c,hex"`
 	CDOL2                      tlv.TL  `tlv:"8d,hex"`
+	CDOL2Hex                   string  `tlv:"8d,hex"`
 	VersionNumber1             string  `tlv:"9f08,hex"`
 	ICCPublicKeyCertificate    string  `tlv:"9f46,hex"`
 	ICCPublicKeyExponent       string  `tlv:"9f47,hex"`
@@ -187,7 +190,7 @@ func (cv CVRule) ConditionString(amount1, amount2 int) string {
 	case 0x02:
 		return "If not unattended cash and not manual cash and not purchase with cashback"
 	case 0x03:
-		return "If terminal supports the CVM 25"
+		return "If terminal supports the CVM"
 	case 0x04:
 		return "If manual cash"
 	case 0x05:
@@ -340,15 +343,97 @@ func (afl AFL) GoString() string {
 }
 
 type GenerateACResponse struct {
-	Raw     []byte `tlv:"raw"`
-	Format1 []byte `tlv:"80"`
+	Format1 GenerateACResponseFormat1 `tlv:"80"`
 	Format2 struct {
-		CryptogramInformationData     string  `tlv:"9f27,hex"`
-		ApplicationTransactionCounter string  `tlv:"9f36,hex"`
-		ApplicationCryptogram         string  `tlv:"9f26,hex"`
-		IssuerApplicationData         []byte  `tlv:"9f10,hex"`
-		SignedDynamicApplicationData  string  `tlv:"9f4b,hex"`
-		Raw                           tlv.TLV `tlv:"raw"`
+		CryptogramInformationData     CryptogramInformationData `tlv:"9f27"`
+		ApplicationTransactionCounter string                    `tlv:"9f36,hex"`
+		ApplicationCryptogram         string                    `tlv:"9f26,hex"`
+		IssuerApplicationData         []byte                    `tlv:"9f10,hex"`
+		SignedDynamicApplicationData  string                    `tlv:"9f4b,hex"`
+		Raw                           tlv.TLV                   `tlv:"raw"`
 	} `tlv:"77"`
-	Format2Raw string `tlv:"77"`
+	Raw tlv.TLV `tlv:"raw"`
+}
+
+func (resp GenerateACResponse) CryptogramInformationData() CryptogramInformationData {
+	if len(resp.Format1) > 0 {
+		return resp.Format1.CryptogramInformationData()
+	}
+	return resp.Format2.CryptogramInformationData
+}
+
+func (resp GenerateACResponse) ApplicationTransactionCounter() string {
+	if len(resp.Format1) > 0 {
+		return resp.Format1.ApplicationTransactionCounter()
+	}
+	return resp.Format2.ApplicationTransactionCounter
+}
+
+func (resp GenerateACResponse) ApplicationCryptogram() string {
+	if len(resp.Format2.ApplicationCryptogram) > 0 {
+		return resp.Format2.ApplicationCryptogram
+	}
+	return resp.Format1.ApplicationCryptogram()
+}
+
+func (resp GenerateACResponse) IssuerApplicationData() []byte {
+	if len(resp.Format2.IssuerApplicationData) > 0 {
+		return resp.Format2.IssuerApplicationData
+	}
+	return resp.Format1.IssuerApplicationData()
+}
+
+type GenerateACResponseFormat1 []byte
+
+func (f1 GenerateACResponseFormat1) CryptogramInformationData() CryptogramInformationData {
+	if len(f1) < 1 {
+		return 0
+	}
+	return CryptogramInformationData(f1[0])
+}
+
+func (f1 GenerateACResponseFormat1) ApplicationTransactionCounter() string {
+	const offset = 1
+	if len(f1) < offset+2 {
+		return ""
+	}
+	return fmt.Sprintf("%02X", f1[offset:offset+2])
+}
+
+func (f1 GenerateACResponseFormat1) ApplicationCryptogram() string {
+	const offset = 3
+	if len(f1) < offset+8 {
+		return ""
+	}
+	return fmt.Sprintf("%02X", f1[offset:offset+8])
+}
+
+func (f1 GenerateACResponseFormat1) IssuerApplicationData() []byte {
+	const offset = 11
+	if len(f1) < offset+1 {
+		return nil
+	}
+	return f1[offset:]
+}
+
+type CryptogramInformationData byte
+
+func (cid CryptogramInformationData) AAC() bool {
+	return cid>>6 == 0b00
+}
+
+func (cid CryptogramInformationData) TC() bool {
+	return cid>>6 == 0b01
+}
+
+func (cid CryptogramInformationData) ARQC() bool {
+	return cid>>6 == 0b10
+}
+
+func (cid CryptogramInformationData) RFU() bool {
+	return cid>>6 == 0b11
+}
+
+func (cid CryptogramInformationData) String() string {
+	return fmt.Sprintf("%02X", byte(cid))
 }

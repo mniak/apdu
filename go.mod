@@ -5,7 +5,7 @@ go 1.21.1
 require (
 	github.com/brianvoe/gofakeit/v6 v6.28.0
 	github.com/ebfe/scard v0.0.0-20230420082256-7db3f9b7c8a7
-	github.com/mniak/tlv v0.0.0-20240228175349-f80c82e7b053
+	github.com/mniak/tlv v0.0.1
 	github.com/pkg/errors v0.9.1
 	github.com/samber/lo v1.38.1
 	github.com/stretchr/testify v1.8.4

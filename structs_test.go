@@ -175,11 +175,11 @@ func TestEMVProprietaryTemplate_Merge(t *testing.T) {
 				emptyValue: func() any { return tlv.TL{} },
 				randomValue: func() any {
 					return tlv.TL{{
-						tlv.Tag(gofakeit.Uint8()),
-						int(gofakeit.Uint8()),
+						Tag:    tlv.Tag(gofakeit.Uint8()),
+						Length: int(gofakeit.Uint8()),
 					}, {
-						tlv.Tag(gofakeit.Uint8()),
-						int(gofakeit.Uint8()),
+						Tag:    tlv.Tag(gofakeit.Uint8()),
+						Length: int(gofakeit.Uint8()),
 					}}
 				},
 				get: func(et *EMVProprietaryTemplate) any { return et.CDOL1 },

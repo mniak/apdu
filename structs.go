@@ -355,6 +355,17 @@ type GenerateACResponse struct {
 	Raw tlv.TLV `tlv:"raw"`
 }
 
+func (resp GenerateACResponse) Format() (int, error) {
+	switch {
+	case resp.Format1.ApplicationCryptogram() != "":
+		return 1, nil
+	case resp.Format2.ApplicationCryptogram != "":
+		return 2, nil
+	default:
+		return 0, errors.New("could not determine the format")
+	}
+}
+
 func (resp GenerateACResponse) CryptogramInformationData() CryptogramInformationData {
 	if len(resp.Format1) > 0 {
 		return resp.Format1.CryptogramInformationData()

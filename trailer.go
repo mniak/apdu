@@ -1,6 +1,8 @@
 package apdu
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Trailer uint16
 

@@ -1,6 +1,8 @@
 package apdu
 
-import "fmt"
+import (
+	"fmt"
+)
 
 const (
 	ErrNoInformationGiven                       TrailerError = 0x6A00
